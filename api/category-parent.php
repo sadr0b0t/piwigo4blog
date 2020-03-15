@@ -45,7 +45,6 @@ if (isset($_GET['id'])) {
     // Итак, рекурсия в SQL на MariaDB младше 10.2.2 не работает, поэтому сделаем в цикле
     $child_cat = $cat;
     while($child_cat != null) {
-        // select * from piwigo_images where id in (select image_id from piwigo_image_category where category_id=3)
         $sql = "SELECT id, name, representative_picture_id, id_uppercat FROM ".CATEGORIES_TABLE." WHERE id IN ".
             "(SELECT id_uppercat FROM ".CATEGORIES_TABLE." WHERE id=".$child_cat.")";
         
