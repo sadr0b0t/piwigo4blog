@@ -32,10 +32,42 @@ include_once(PHPWG_ROOT_PATH.'include/common.inc.php' );
 // ./upload/2018/08/02/20180802172311-764235b9.jpg | 0 | 764235b9ed0024e53c7798ad7015a41e | 1 | 0 |
 // 2018-08-02 17:23:11
 
+////////////////////////////////////
+// usage examples:
+// 
+// root category:
+// https://fotki.sadrobot.su/plugins/piwigo4blog/api/category.php
+// 
+// category with id=3:
+// https://fotki.sadrobot.su/plugins/piwigo4blog/api/category.php?id=3
+// 
+// category with id=3, show max 8 images with offset 10:
+// https://fotki.sadrobot.su/plugins/piwigo4blog/api/category.php?id=3&img_lim=8&img_offset=10
+
+
+// @param cat_id: category id to show, show root category if not set
 $cat_id = null;
 if(isset($_GET['id'])) {
     $cat_id = pwg_db_real_escape_string($_GET['id']);
 }
+
+// @param img_lim: return not more than img_lim images (for paging),
+//     return all if not set
+$img_lim = null;
+if(isset($_GET['img_lim'])) {
+    $img_lim = pwg_db_real_escape_string($_GET['img_lim']);
+}
+
+// @param img_offset: return images starting from img_offset index (for paging),
+//     start from the 1-st if not set.
+//     Only used when $img_lim is set
+$img_offset = null;
+if(isset($_GET['img_offset'])) {
+    $img_offset = pwg_db_real_escape_string($_GET['img_offset']);
+}
+
+
+////////////////////////////////////
 
 // 
 // Category info
@@ -190,7 +222,16 @@ if ($cat_id != null) {
 // 
 if ($cat_id != null) {
     // select * from piwigo_images where id in (select image_id from piwigo_image_category where category_id=3)
-    $sql = "SELECT id, name, file, path FROM ".IMAGES_TABLE." WHERE id in (select image_id FROM ".IMAGE_CATEGORY_TABLE." WHERE category_id=".$cat_id.")";
+    $sql = "SELECT id, name, file, path FROM ".IMAGES_TABLE." WHERE id in (SELECT image_id FROM ".IMAGE_CATEGORY_TABLE." WHERE category_id=".$cat_id.")";
+    
+    if($img_lim != null) {
+        $sql = $sql." LIMIT ".$img_lim;
+        
+        if($img_offset != null) {
+            $sql = $sql." OFFSET ".$img_offset;
+        }
+    }
+    
     
     $result = pwg_query($sql);
     $result_images=array();
