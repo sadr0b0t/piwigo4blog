@@ -218,6 +218,21 @@ if ($cat_id != null) {
 }
 
 // 
+// Images count
+// 
+
+if ($cat_id != null) {
+    $sql = "SELECT COUNT(id) FROM ".IMAGES_TABLE." WHERE id in (SELECT image_id FROM ".IMAGE_CATEGORY_TABLE." WHERE category_id=".$cat_id.")";
+    
+    $result = pwg_query($sql);
+    $result_img_count = (int)pwg_db_fetch_row($result)[0];
+    
+    $result_category->img_count = $result_img_count;
+} else {
+    $result_category->img_count = 0;
+}
+
+// 
 // Images
 // 
 if ($cat_id != null) {
