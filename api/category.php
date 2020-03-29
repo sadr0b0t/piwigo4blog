@@ -7,6 +7,10 @@ define('PHPWG_ROOT_PATH', dirname(dirname(dirname(dirname(__FILE__)))).'/');
 // the common.inc.php file loads all the main.inc.php plugins files
 include_once(PHPWG_ROOT_PATH.'include/common.inc.php' );
 
+// https://github.com/Piwigo/Piwigo/blob/master/include/ws_functions.inc.php
+// function ws_std_get_urls($image_row)
+include_once(PHPWG_ROOT_PATH.'include/ws_functions.inc.php');
+
 
 // select column_name from information_schema.columns where table_name='piwigo_images'
 //$sql = "select column_name from information_schema.columns where table_name='".IMAGES_TABLE."'";
@@ -76,13 +80,13 @@ if ($cat_id != null) {
     $sql = "SELECT id, name, representative_picture_id, id_uppercat FROM ".CATEGORIES_TABLE." WHERE id=".$cat_id;
 
     $result = pwg_query($sql);
-    while($row = pwg_db_fetch_row($result)) {
+    while($row = pwg_db_fetch_assoc($result)) {
         // $row - массив значений колонок
         $result_category = (object) [
-            'id' => $row[0],
-            'name' => $row[1],
-            'representativePictureId' => $row[2],
-            'idUppercat' => $row[3]
+            'id' => $row['id'],
+            'name' => $row['name'],
+            'representativePictureId' => $row['representative_picture_id'],
+            'idUppercat' => $row['id_uppercat']
         ];
     }
 } else {
@@ -98,25 +102,38 @@ if ($cat_id != null) {
 // Representative picture
 // 
 if($result_category->representativePictureId != null) {
-    $sql = "SELECT id, name, file, path FROM ".IMAGES_TABLE." WHERE id=".$result_category->representativePictureId;
+    $sql = "SELECT id, name, file, path, width, height, rotation FROM ".IMAGES_TABLE." WHERE id=".$result_category->representativePictureId;
     
     $result = pwg_query($sql);
     $result_image;
-    if($row = pwg_db_fetch_row($result)) {
+    if($row = pwg_db_fetch_assoc($result)) {
         // $row - массив значений колонок
-        $result_image = (object) [
-            'id' => $row[0],
-            'name' => $row[1],
-            'file' => $row[2],
-            'path' => $row[3],
+        $img = (object) [
+            'id' => $row['id'],
+            'name' => $row['name'],
+            'file' => $row['file'],
+            'path' => $row['path']
             
-            //
-            'thumb' => $row[3],
-            'orig' => $row[3]
+            // at least requires: width, height, rotation
+            //'urls' => ws_std_get_urls($row)
         ];
+        
+        $urls = ws_std_get_urls($row);
+        $urls['page_url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['page_url']);
+        $urls['element_url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['element_url']);
+        $urls['derivatives']['square']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['square']['url']);
+        $urls['derivatives']['thumb']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['thumb']['url']);
+        $urls['derivatives']['2small']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['2small']['url']);
+        $urls['derivatives']['xsmall']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xsmall']['url']);
+        $urls['derivatives']['small']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['small']['url']);
+        $urls['derivatives']['medium']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['medium']['url']);
+        $urls['derivatives']['large']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['large']['url']);
+        $urls['derivatives']['xlarge']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xlarge']['url']);
+        $urls['derivatives']['xxlarge']['url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xxlarge']['url']);
+        $img->urls = $urls;
     }
     
-    $result_category->representativePicture = $result_image;
+    $result_category->representativePicture = $img;
 }
 
 // 
@@ -132,35 +149,48 @@ if ($cat_id != null) {
 
 $result = pwg_query($sql);
 $result_categories=array();
-while($row = pwg_db_fetch_row($result)) {
+while($row = pwg_db_fetch_assoc($result)) {
     // $row - массив значений колонок
     $child_cat = (object) [
-        'id' => $row[0],
-        'name' => $row[1],
-        'representativePictureId' => $row[2],
-        'idUppercat' => $row[3]
+        'id' => $row['id'],
+        'name' => $row['name'],
+        'representativePictureId' => $row['representative_picture_id'],
+        'idUppercat' => $row['id_uppercat']
     ];
     
     if($child_cat->representativePictureId != null) {
-        $sql = "SELECT id, name, file, path FROM ".IMAGES_TABLE." WHERE id=".$child_cat->representativePictureId;
+        $sql = "SELECT id, name, file, path, width, height, rotation FROM ".IMAGES_TABLE." WHERE id=".$child_cat->representativePictureId;
         
         $result1 = pwg_query($sql);
         $result_image;
-        if($row1 = pwg_db_fetch_row($result1)) {
+        if($row1 = pwg_db_fetch_assoc($result1)) {
             // $row - массив значений колонок
-            $result_image = (object) [
-                'id' => $row1[0],
-                'name' => $row1[1],
-                'file' => $row1[2],
-                'path' => $row1[3],
-            
-                //
-                'thumb' => $row1[3],
-                'orig' => $row1[3]
+            $img = (object) [
+                'id' => $row1['id'],
+                'name' => $row1['name'],
+                'file' => $row1['file'],
+                'path' => $row1['path']
+                
+                // at least requires: width, height, rotation
+                //'urls' => ws_std_get_urls($row1)
             ];
+        
+            $urls = ws_std_get_urls($row1);
+            $urls['page_url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['page_url']);
+            $urls['element_url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['element_url']);
+            $urls['derivatives']['square']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['square']['url']);
+            $urls['derivatives']['thumb']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['thumb']['url']);
+            $urls['derivatives']['2small']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['2small']['url']);
+            $urls['derivatives']['xsmall']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xsmall']['url']);
+            $urls['derivatives']['small']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['small']['url']);
+            $urls['derivatives']['medium']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['medium']['url']);
+            $urls['derivatives']['large']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['large']['url']);
+            $urls['derivatives']['xlarge']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xlarge']['url']);
+            $urls['derivatives']['xxlarge']['url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xxlarge']['url']);
+            $img->urls = $urls;
         }
         
-        $child_cat->representativePicture = $result_image;
+        $child_cat->representativePicture = $img;
     }
         
     $result_categories[] = $child_cat;
@@ -196,16 +226,16 @@ if ($cat_id != null) {
         
         $result = pwg_query($sql);
         // ожидаем только одну строку
-        if($row = pwg_db_fetch_row($result)) {
+        if($row = pwg_db_fetch_assoc($result)) {
             // $row - массив значений колонок
             $result_categories[] = (object) [
-                'id' => $row[0],
-                'name' => $row[1],
-                'representativePictureId' => $row[2],
-                'idUppercat' => $row[3]
+                'id' => $row['id'],
+                'name' => $row['name'],
+                'representativePictureId' => $row['representative_picture_id'],
+                'idUppercat' => $row['id_uppercat']
             ];
             
-            $parent_cat = $row[0];
+            $parent_cat = $row['id'];
         } else {
             $parent_cat = null;
         }
@@ -220,7 +250,6 @@ if ($cat_id != null) {
 // 
 // Images count
 // 
-
 if ($cat_id != null) {
     $sql = "SELECT COUNT(id) FROM ".IMAGES_TABLE." WHERE id in (SELECT image_id FROM ".IMAGE_CATEGORY_TABLE." WHERE category_id=".$cat_id.")";
     
@@ -237,7 +266,8 @@ if ($cat_id != null) {
 // 
 if ($cat_id != null) {
     // select * from piwigo_images where id in (select image_id from piwigo_image_category where category_id=3)
-    $sql = "SELECT id, name, file, path FROM ".IMAGES_TABLE." WHERE id in (SELECT image_id FROM ".IMAGE_CATEGORY_TABLE." WHERE category_id=".$cat_id.")";
+    $sql = "SELECT id, name, file, path, width, height, rotation FROM ".IMAGES_TABLE.
+        " WHERE id in (SELECT image_id FROM ".IMAGE_CATEGORY_TABLE." WHERE category_id=".$cat_id.")";
     
     if($img_lim != null) {
         $sql = $sql." LIMIT ".$img_lim;
@@ -247,21 +277,36 @@ if ($cat_id != null) {
         }
     }
     
-    
     $result = pwg_query($sql);
     $result_images=array();
-    while($row = pwg_db_fetch_row($result)) {
+    while($row = pwg_db_fetch_assoc($result)) {
         // $row - массив значений колонок
-        $result_images[] = (object) [
-            'id' => $row[0],
-            'name' => $row[1],
-            'file' => $row[2],
-            'path' => $row[3],
+        $img = (object) [
+            'id' => $row['id'],
+            'name' => $row['name'],
+            'file' => $row['file'],
+            'path' => $row['path']//,
             
-            //
-            'thumb' => $row[3],
-            'orig' => $row[3]
+            // at least requires: width, height, rotation
+            //'urls' => ws_std_get_urls($row)
         ];
+        
+        $urls = ws_std_get_urls($row);
+        $urls['page_url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['page_url']);
+        $urls['element_url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['element_url']);
+        $urls['derivatives']['square']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['square']['url']);
+        $urls['derivatives']['thumb']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['thumb']['url']);
+        $urls['derivatives']['2small']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['2small']['url']);
+        $urls['derivatives']['xsmall']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xsmall']['url']);
+        $urls['derivatives']['small']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['small']['url']);
+        $urls['derivatives']['medium']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['medium']['url']);
+        $urls['derivatives']['large']['url']   = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['large']['url']);
+        $urls['derivatives']['xlarge']['url']  = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xlarge']['url']);
+        $urls['derivatives']['xxlarge']['url'] = str_replace(PHPWG_ROOT_PATH, '', $urls['derivatives']['xxlarge']['url']);
+        $img->urls = $urls;
+        
+        $result_images[] = $img;
+        
     }
     
     $result_category->images = $result_images;
