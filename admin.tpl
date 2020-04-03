@@ -12,7 +12,7 @@
 <!-- Show content in a nice box -->
 <fieldset>
 
-<legend>{'Mass export images from gallery wrapped in html tags for blog post'|@translate}</legend>
+<legend>{'Mass export images from gallery wrapped in html tags to embed in blog post'|@translate}</legend>
 
 <noscript>
     You need to enable JavaScript to run this app.
