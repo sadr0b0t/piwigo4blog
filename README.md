@@ -8,7 +8,7 @@ Client UI: https://github.com/sadr0b0t/piwigo4blog-react
 
 # Install plugin
 
-Preffered way: from [plugin catalogue](https://piwigo.org/ext/extension_view.php?eid=891) with plugin management interface inside admin section.
+Preferred way: from [plugin catalogue](https://piwigo.org/ext/extension_view.php?eid=891) with plugin management interface inside admin section.
 
 
 Manually:
