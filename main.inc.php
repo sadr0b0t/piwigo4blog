@@ -22,7 +22,7 @@ function piwigo4blog_admin_menu($menu) {
     array_push(
         $menu,
         array(
-            'NAME'  => 'piwigo4blog',
+            'NAME'  => 'Piwigo4blog',
             // https://fotki.sadrobot.su/admin.php?page=plugin-piwigo4blog
             'URL' => get_root_url().'admin.php?page=plugin-piwigo4blog'
             // example does not work:
