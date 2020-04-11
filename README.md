@@ -8,6 +8,9 @@ Client UI: https://github.com/sadr0b0t/piwigo4blog-react
 
 # Install plugin
 
+Preffered way: from [plugin catalogue](https://piwigo.org/ext/extension_view.php?eid=891) with plugin management interface inside admin section.
+
+
 Manually:
 Unpack release archive to _plugins_ dir in Piwigo installation on server (for example: _/var/www/piwigo/plugins/piwigo4react_).
 
@@ -18,4 +21,23 @@ Inside Admin section go to Plugins > Piwigo4blog
 This project contains ready to install PHP server code. You should only build client code from [piwigo4blog-react](https://github.com/sadr0b0t/piwigo4blog-react) project.
 
 More info on plugin development for Piwigo: https://piwigo.org/doc/doku.php?id=dev:extensions:start
+
+# API
+
+Check out JSON data:
+
+root category:
+https://[your-piwigo-hosting.org]/plugins/piwigo4blog/api/category.php
+
+with paging:
+https://[your-piwigo-hosting.org]/plugins/piwigo4blog/api/category.php?img_lim=10&img_offset=1
+
+
+some child category:
+
+all images:
+https://[your-piwigo-hosting.org]/plugins/piwigo4blog/api/category.php?id=15
+
+with paging:
+https://[your-piwigo-hosting.org]/plugins/piwigo4blog/api/category.php?id=15&img_lim=10&img_offset=1
 
