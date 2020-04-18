@@ -168,8 +168,6 @@ while($row = pwg_db_fetch_assoc($result)) {
             ') AND representative_picture_id IS NOT NULL LIMIT 1';
         $result2 = pwg_query($sql);
         
-        $child_cat->sql = $sql;
-        
         if($row2 = pwg_db_fetch_assoc($result2)) {
             $child_cat->representativePictureId = $row2['representative_picture_id'];
         }
