@@ -11,7 +11,6 @@ include_once(PHPWG_ROOT_PATH.'include/common.inc.php' );
 // function ws_std_get_urls($image_row)
 include_once(PHPWG_ROOT_PATH.'include/ws_functions.inc.php');
 
-
 // select column_name from information_schema.columns where table_name='piwigo_images'
 //$sql = "select column_name from information_schema.columns where table_name='".IMAGES_TABLE."'";
 // id file date_available date_creation name comment author hit filesize width height coi representative_ext date_metadata_update
@@ -157,6 +156,24 @@ while($row = pwg_db_fetch_assoc($result)) {
         'representativePictureId' => $row['representative_picture_id'],
         'idUppercat' => $row['id_uppercat']
     ];
+    
+    if($child_cat->representativePictureId == null) {
+        // take representative picture from some child category
+        $sql = 'SELECT representative_picture_id FROM '.CATEGORIES_TABLE.
+            ' WHERE ('.
+            ' uppercats LIKE \''.$child_cat->id.'\' OR'.
+            ' uppercats LIKE \''.$child_cat->id.',%\' OR'.
+            ' uppercats LIKE \'%,'.$child_cat->id.'\' OR'.
+            ' uppercats LIKE \'%,'.$child_cat->id.',%\''.
+            ') AND representative_picture_id IS NOT NULL LIMIT 1';
+        $result2 = pwg_query($sql);
+        
+        $child_cat->sql = $sql;
+        
+        if($row2 = pwg_db_fetch_assoc($result2)) {
+            $child_cat->representativePictureId = $row2['representative_picture_id'];
+        }
+    }
     
     if($child_cat->representativePictureId != null) {
         $sql = "SELECT id, name, file, path, width, height, rotation FROM ".IMAGES_TABLE." WHERE id=".$child_cat->representativePictureId;
