@@ -10,6 +10,7 @@ Client UI: https://github.com/sadr0b0t/piwigo4blog-react
 
 Preferred way: from [plugin catalogue](https://piwigo.org/ext/extension_view.php?eid=891) with plugin management interface inside admin section.
 
+discuss: https://piwigo.org/forum/viewtopic.php?id=30189
 
 Manually:
 Unpack release archive to _plugins_ dir in Piwigo installation on server (for example: _/var/www/piwigo/plugins/piwigo4react_).
